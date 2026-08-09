@@ -5,16 +5,47 @@ Usage:
     python scripts/run_ingestion.py
 """
 import sys
+import time
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))  # allow `import config`
 
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
 import config
+
+
+def _load_pdfs_from_dir(directory: Path, source_type: str):
+    """
+    Loads each PDF individually (instead of one directory-wide call) so:
+      - progress is visible per file, instead of looking frozen
+      - a single slow/corrupt PDF can be skipped without killing the batch
+
+    Uses PyMuPDF (fitz) rather than pypdf — pypdf can be extremely slow
+    (minutes per page) on image-heavy, complex PDFs like TNAU/ICAR guides.
+    """
+    docs = []
+    pdf_paths = sorted(directory.glob("*.pdf"))
+    if not pdf_paths:
+        return docs
+
+    for i, pdf_path in enumerate(pdf_paths, start=1):
+        print(f"  [{i}/{len(pdf_paths)}] Loading {pdf_path.name} ...", end=" ", flush=True)
+        start = time.time()
+        try:
+            loader = PyMuPDFLoader(str(pdf_path))
+            file_docs = loader.load()
+            for d in file_docs:
+                d.metadata["source_type"] = source_type
+            docs.extend(file_docs)
+            print(f"{len(file_docs)} pages in {time.time() - start:.1f}s")
+        except Exception as e:
+            print(f"SKIPPED (error: {e})")
+
+    return docs
 
 
 def load_all_documents():
@@ -24,22 +55,14 @@ def load_all_documents():
     docs = []
 
     if any(config.RAW_PDFS_DIR.glob("*.pdf")):
-        loader = PyPDFDirectoryLoader(str(config.RAW_PDFS_DIR))
-        institutional_docs = loader.load()
-        for d in institutional_docs:
-            d.metadata["source_type"] = "institutional_guide"
-        docs.extend(institutional_docs)
-        print(f"Loaded {len(institutional_docs)} pages from {config.RAW_PDFS_DIR}")
+        print(f"Loading institutional guides from {config.RAW_PDFS_DIR}")
+        docs.extend(_load_pdfs_from_dir(config.RAW_PDFS_DIR, "institutional_guide"))
     else:
         print(f"No PDFs found in {config.RAW_PDFS_DIR}, skipping.")
 
     if any(config.RAW_PDFS_WIKI_DIR.glob("*.pdf")):
-        loader = PyPDFDirectoryLoader(str(config.RAW_PDFS_WIKI_DIR))
-        wiki_docs = loader.load()
-        for d in wiki_docs:
-            d.metadata["source_type"] = "background_reading"
-        docs.extend(wiki_docs)
-        print(f"Loaded {len(wiki_docs)} pages from {config.RAW_PDFS_WIKI_DIR}")
+        print(f"Loading background reading from {config.RAW_PDFS_WIKI_DIR}")
+        docs.extend(_load_pdfs_from_dir(config.RAW_PDFS_WIKI_DIR, "background_reading"))
     else:
         print(f"No PDFs found in {config.RAW_PDFS_WIKI_DIR}, skipping.")
 

@@ -25,4 +25,3 @@ VOLUME ["/app/data/chroma_db", "/app/artifacts"]
 EXPOSE 8000
 
 CMD ["python", "src/api.py"]
-'@ | Set-Content -Path "Dockerfile" -Encoding utf8 -NoNewline

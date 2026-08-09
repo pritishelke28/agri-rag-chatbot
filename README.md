@@ -3,6 +3,17 @@
 An **AI-powered agricultural advisory chatbot** designed to help farmers with crop selection, fertilizer recommendations, plant disease diagnosis, and agriculture-related questions.
 
 The system combines **Retrieval-Augmented Generation (RAG)** with machine-learning models to provide practical, context-aware agricultural guidance.
+## 🚀 Live Demo
+
+🌐 Deployed Application:
+https://agri-rag-chatbot.onrender.com/
+
+### Sample Queries
+
+- What is the best fertilizer for rice?
+- How do I control leaf blight in paddy?
+- Recommend crops for N=90, P=42, K=43, pH=6.5
+- Suggest fertilizer plan for tomato cultivation
 
 ## 🚀 Key Features
 

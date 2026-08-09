@@ -1,0 +1,10 @@
+@'
+venv/
+__pycache__/
+*.pyc
+.env
+.git/
+data/raw_pdfs/*.pdf
+data/raw_pdfs_wikipedia/*.pdf
+.pytest_cache/
+'@ | Set-Content -Path ".dockerignore" -Encoding utf8 -NoNewline

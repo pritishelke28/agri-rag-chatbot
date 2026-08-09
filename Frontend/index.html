@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Krishi Sahayak — Agricultural Advisory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     Palette named after the physical Indian "Soil Health Card"
+     farmers receive from agricultural offices — ledger paper,
+     forest-green ink, turmeric-gold highlight, indigo dye accent,
+     chili-red reserved strictly for warnings.
+     ============================================================ */
+  :root{
+    --paper:        #EDE6D0;
+    --paper-light:  #F7F2E3;
+    --card:         #FBF8EE;
+    --card-line:    rgba(32,41,29,0.14);
+    --ink:          #202919;
+    --ink-soft:     #5B6350;
+    --ink-faint:    #8B9180;
+    --forest:       #2F5233;
+    --forest-dark:  #1D3320;
+    --forest-tint:  #E4ECE1;
+    --turmeric:     #C98A2B;
+    --turmeric-tint:#F5E4C2;
+    --indigo:       #33455C;
+    --indigo-tint:  #E4E9EF;
+    --alert:        #A63D2F;
+    --alert-tint:   #F3DFDA;
+    --shadow:       0 1px 2px rgba(32,41,29,0.06), 0 6px 20px -8px rgba(32,41,29,0.18);
+    --radius:       14px;
+    --font-display: "Fraunces", serif;
+    --font-body:    "Source Sans 3", sans-serif;
+    --font-mono:    "IBM Plex Mono", monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{ height:100%; }
+
+  body{
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(32,41,29,0.05) 1px, transparent 0) 0 0/22px 22px,
+      var(--paper);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  a{ color:inherit; }
+
+  ::selection{ background:var(--turmeric-tint); color:var(--forest-dark); }
+
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible{
+    outline:2.5px solid var(--turmeric);
+    outline-offset:2px;
+  }
+
+  /* ============================================================
+     HEADER — styled like the stamped title strip of a soil card
+     ============================================================ */
+  .masthead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 22px;
+    background:var(--forest-dark);
+    color:var(--paper-light);
+    border-bottom:3px solid var(--turmeric);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand-mark{
+    width:38px; height:38px;
+    flex:0 0 auto;
+  }
+
+  .brand-text h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:0.01em;
+    line-height:1.1;
+  }
+
+  .brand-text p{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--turmeric-tint);
+    opacity:0.85;
+    margin-top:3px;
+  }
+
+  .card-stamp{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--paper-light);
+    opacity:0.9;
+    border:1px solid rgba(247,242,227,0.35);
+    border-radius:999px;
+    padding:6px 14px;
+    white-space:nowrap;
+  }
+
+  .card-stamp .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:#7CC489;
+    box-shadow:0 0 0 3px rgba(124,196,137,0.25);
+  }
+
+  /* ============================================================
+     LAYOUT SHELL
+     ============================================================ */
+  .shell{
+    flex:1;
+    display:grid;
+    grid-template-columns:250px 1fr;
+    min-height:0;
+    max-width:1280px;
+    width:100%;
+    margin:0 auto;
+    padding:20px;
+    gap:20px;
+  }
+
+  /* ============================================================
+     SIDEBAR — index-card tab list
+     ============================================================ */
+  .sidebar{
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    height:fit-content;
+  }
+
+  .sidebar-label{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    padding:4px 10px 10px;
+  }
+
+  .tab{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:11px 10px;
+    border-radius:10px;
+    text-align:left;
+    transition:background 0.15s ease, transform 0.1s ease;
+  }
+  .tab:hover{ background:var(--forest-tint); }
+  .tab:active{ transform:scale(0.98); }
+
+  .tab-index{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-faint);
+    padding-top:2px;
+    flex:0 0 auto;
+    width:16px;
+  }
+
+  .tab-text strong{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .tab-text span{
+    display:block;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:2px;
+    line-height:1.35;
+  }
+
+  .tab.active{
+    background:var(--forest);
+  }
+  .tab.active .tab-index{ color:var(--turmeric-tint); }
+  .tab.active .tab-text strong{ color:var(--paper-light); }
+  .tab.active .tab-text span{ color:rgba(247,242,227,0.75); }
+
+  .sidebar-divider{
+    height:1px;
+    background:var(--card-line);
+    margin:10px 2px;
+  }
+
+  .sidebar-status{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--ink-soft);
+    padding:6px 10px 2px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .sidebar-status .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--forest);
+  }
+
+  /* ============================================================
+     MAIN PANEL — the ledger / chat surface
+     ============================================================ */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    overflow:hidden;
+  }
+
+  .panel-header{
+    padding:16px 22px;
+    border-bottom:1px dashed var(--card-line);
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .panel-header h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:19px;
+  }
+  .panel-header p{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .panel-header .field-note{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--ink-faint);
+    letter-spacing:0.05em;
+  }
+
+  /* Module input row (crop / fertilizer / disease structured fields) */
+  .field-row{
+    display:none;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:14px 22px;
+    background:var(--paper-light);
+    border-bottom:1px solid var(--card-line);
+  }
+  .field-row.active{ display:flex; }
+
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .field label{
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .field input, .field select{
+    font-family:var(--font-mono);
+    font-size:13px;
+    padding:7px 9px;
+    width:92px;
+    border:1px solid var(--card-line);
+    border-radius:7px;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .field.wide input{ width:150px; }
+
+  .upload-field{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .upload-btn{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--forest-dark);
+    border:1px dashed var(--forest);
+    border-radius:8px;
+    padding:8px 14px;
+    background:var(--forest-tint);
+  }
+  .upload-btn:hover{ background:#d8e6d4; }
+  .upload-preview{
+    display:none;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .upload-preview img{
+    width:34px; height:34px; object-fit:cover;
+    border-radius:6px;
+    border:1px solid var(--card-line);
+  }
+
+  /* ============================================================
+     CHAT LOG
+     ============================================================ */
+  .chat-log{
+    flex:1;
+    overflow-y:auto;
+    padding:22px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .msg{
+    max-width:min(560px, 86%);
+    animation:rise 0.28s ease both;
+  }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .msg-meta{
+    font-family:var(--font-mono);
+    font-size:10px;
+    color:var(--ink-faint);
+    margin-bottom:5px;
+    letter-spacing:0.04em;
+  }
+
+  .msg.assistant{ align-self:flex-start; }
+  .msg.farmer{ align-self:flex-end; text-align:right; }
+
+  .bubble{
+    padding:13px 16px;
+    border-radius:12px;
+    font-size:14.5px;
+    line-height:1.55;
+  }
+
+  .msg.assistant .bubble{
+    background:var(--card);
+    border:1px solid var(--card-line);
+    border-left:3px solid var(--forest);
+    color:var(--ink);
+    text-align:left;
+  }
+
+  .msg.farmer .bubble{
+    background:var(--indigo);
+    color:var(--paper-light);
+    border-radius:12px 12px 3px 12px;
+    text-align:left;
+  }
+
+  .bubble ol, .bubble ul{ margin:8px 0 0 18px; }
+  .bubble strong{ color:var(--forest-dark); }
+  .msg.farmer .bubble strong{ color:var(--turmeric-tint); }
+
+  .typing{
+    display:inline-flex;
+    gap:4px;
+    padding:4px 2px;
+  }
+  .typing span{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--ink-faint);
+    animation:blink 1.1s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){ animation-delay:0.15s; }
+  .typing span:nth-child(3){ animation-delay:0.3s; }
+  @keyframes blink{
+    0%,80%,100%{ opacity:0.25; transform:translateY(0); }
+    40%{ opacity:1; transform:translateY(-2px); }
+  }
+
+  /* ---- Signature element: printed nutrient ledger bars ---- */
+  .nutrient-card{
+    margin-top:10px;
+    border:1px solid var(--card-line);
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--paper-light);
+  }
+  .nutrient-card-head{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    padding:8px 12px;
+    border-bottom:1px dashed var(--card-line);
+    display:flex;
+    justify-content:space-between;
+  }
+  .nutrient-row{
+    display:grid;
+    grid-template-columns:34px 1fr 48px;
+    align-items:center;
+    gap:10px;
+    padding:8px 12px;
+    border-bottom:1px solid var(--card-line);
+  }
+  .nutrient-row:last-child{ border-bottom:none; }
+  .nutrient-label{
+    font-family:var(--font-mono);
+    font-weight:600;
+    font-size:12px;
+    color:var(--ink);
+  }
+  .nutrient-track{
+    height:8px;
+    border-radius:5px;
+    background:#E3DCC6;
+    overflow:hidden;
+    position:relative;
+  }
+  .nutrient-fill{ height:100%; border-radius:5px; }
+  .nutrient-fill.low{ background:var(--alert); }
+  .nutrient-fill.ok{ background:var(--turmeric); }
+  .nutrient-fill.good{ background:var(--forest); }
+  .nutrient-value{
+    font-family:var(--font-mono);
+    font-size:11px;
+    text-align:right;
+    color:var(--ink-soft);
+  }
+
+  /* ============================================================
+     COMPOSER
+     ============================================================ */
+  .composer{
+    border-top:1px solid var(--card-line);
+    padding:14px 18px;
+    background:var(--paper-light);
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+  }
+
+  .composer textarea{
+    flex:1;
+    resize:none;
+    border:1px solid var(--card-line);
+    border-radius:12px;
+    padding:11px 14px;
+    font-family:var(--font-body);
+    font-size:14px;
+    line-height:1.4;
+    color:var(--ink);
+    background:var(--card);
+    max-height:120px;
+  }
+  .composer textarea::placeholder{ color:var(--ink-faint); }
+
+  .send-btn{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--turmeric);
+    color:var(--forest-dark);
+    font-weight:700;
+    font-size:13.5px;
+    padding:12px 18px;
+    border-radius:11px;
+    transition:transform 0.1s ease, background 0.15s ease;
+  }
+  .send-btn:hover{ background:#d99b3a; }
+  .send-btn:active{ transform:scale(0.96); }
+  .send-btn svg{ width:15px; height:15px; }
+
+  .composer-note{
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    color:var(--ink-faint);
+    padding:6px 18px 0;
+    letter-spacing:0.03em;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 860px){
+    .shell{
+      grid-template-columns:1fr;
+      padding:12px;
+      gap:12px;
+    }
+    .sidebar{
+      flex-direction:row;
+      overflow-x:auto;
+      gap:8px;
+      padding:10px;
+    }
+    .sidebar-label, .sidebar-divider, .sidebar-status{ display:none; }
+    .tab{ flex:0 0 auto; min-width:150px; }
+    .panel{ min-height:60vh; }
+    .masthead{ padding:12px 14px; }
+    .brand-text h1{ font-size:17px; }
+    .card-stamp{ display:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+
+  /* scrollbar polish */
+  .chat-log::-webkit-scrollbar{ width:9px; }
+  .chat-log::-webkit-scrollbar-thumb{ background:var(--card-line); border-radius:6px; }
+</style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="20" cy="20" r="19" stroke="#F5E4C2" stroke-width="1.4" opacity="0.5"/>
+        <path d="M20 30C20 30 11 26.5 11 17.5C11 13 14 10 20 10C26 10 29 13 29 17.5C29 26.5 20 30 20 30Z" fill="#7CC489" opacity="0.9"/>
+        <path d="M20 30V13.5" stroke="#1D3320" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M20 17L15.5 14M20 21L24.5 18" stroke="#1D3320" stroke-width="1.1" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Krishi Sahayak</h1>
+        <p>Agricultural Advisory · AI Assisted</p>
+      </div>
+    </div>
+    <div class="card-stamp">
+      <span class="dot"></span>
+      Advisory session active
+    </div>
+  </header>
+
+  <div class="shell">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" aria-label="Advisory modules">
+      <div class="sidebar-label">Advisory Modules</div>
+
+      <button class="tab active" data-module="general">
+        <span class="tab-index">01</span>
+        <span class="tab-text">
+          <strong>General Advisory</strong>
+          <span>Ask anything about crops, soil or practice</span>
+        </span>
+      </button>
+
+      <button class="tab" data-module="crop">
+        <span class="tab-index">02</span>
+        <span class="tab-text">
+          <strong>Crop Recommendation</strong>
+          <span>Soil N-P-K, pH and rainfall → best crops</span>
+        </span>
+      </button>
+
+      <button class="tab" data-module="fertilizer">
+        <span class="tab-index">03</span>
+        <span class="tab-text">
+          <strong>Fertilizer Plan</strong>
+          <span>Nutrient gap → dosage calendar</span>
+        </span>
+      </button>
+
+      <button class="tab" data-module="disease">
+        <span class="tab-index">04</span>
+        <span class="tab-text">
+          <strong>Disease Diagnosis</strong>
+          <span>Leaf photo or symptoms → treatment</span>
+        </span>
+      </button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-status"><span class="dot"></span> Knowledge base: 80 guides indexed</div>
+    </nav>
+
+    <!-- MAIN PANEL -->
+    <main class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 id="panel-title">General Advisory</h2>
+          <p id="panel-sub">Ask a free-form question — answers are grounded in ICAR / TNAU / FAO guidance.</p>
+        </div>
+        <span class="field-note" id="panel-tag">MODULE 01</span>
+      </div>
+
+      <!-- Crop module fields -->
+      <div class="field-row" data-fields="crop">
+        <div class="field"><label>N (kg/ha)</label><input type="number" id="crop-n" placeholder="40"></div>
+        <div class="field"><label>P (kg/ha)</label><input type="number" id="crop-p" placeholder="30"></div>
+        <div class="field"><label>K (kg/ha)</label><input type="number" id="crop-k" placeholder="35"></div>
+        <div class="field"><label>Temp (°C)</label><input type="number" id="crop-temp" placeholder="27"></div>
+        <div class="field"><label>Humidity (%)</label><input type="number" id="crop-hum" placeholder="65"></div>
+        <div class="field"><label>Soil pH</label><input type="number" step="0.1" id="crop-ph" placeholder="6.5"></div>
+        <div class="field"><label>Rainfall (mm)</label><input type="number" id="crop-rain" placeholder="180"></div>
+      </div>
+
+      <!-- Fertilizer module fields -->
+      <div class="field-row" data-fields="fertilizer">
+        <div class="field wide"><label>Target crop</label><input type="text" id="fert-crop" placeholder="Rice"></div>
+        <div class="field"><label>Current N</label><input type="number" id="fert-n" placeholder="40"></div>
+        <div class="field"><label>Current P</label><input type="number" id="fert-p" placeholder="15"></div>
+        <div class="field"><label>Current K</label><input type="number" id="fert-k" placeholder="20"></div>
+      </div>
+
+      <!-- Disease module fields -->
+      <div class="field-row" data-fields="disease">
+        <div class="upload-field">
+          <label class="upload-btn" for="leaf-upload">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+            Upload leaf photo
+          </label>
+          <input type="file" id="leaf-upload" accept="image/*" hidden>
+          <span class="upload-preview" id="leaf-preview">
+            <img id="leaf-thumb" alt="">
+            <span id="leaf-filename"></span>
+          </span>
+        </div>
+      </div>
+
+      <!-- CHAT LOG -->
+      <div class="chat-log" id="chat-log">
+        <div class="msg assistant">
+          <div class="msg-meta">ADVISORY · 09:14</div>
+          <div class="bubble">
+            Namaste 🌾 I'm your agricultural advisory assistant. Choose a module on the left,
+            or just type your question below — for example, <em>"When should I apply DAP for wheat?"</em>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPOSER -->
+      <div class="composer">
+        <textarea id="composer-input" rows="1" placeholder="Type your question…"></textarea>
+        <button class="send-btn" id="send-btn">
+          Send
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <p class="composer-note">Advisory responses are informational — confirm dosage and treatment with your local Krishi Vigyan Kendra before applying.</p>
+    </main>
+
+  </div>
+
+<script>
+  /* ============================================================
+     MODULE CONFIG
+     Swap the mocked responses in `mockReply()` for a real
+     fetch() call to your backend, e.g.:
+
+       const res = await fetch('/api/advisory', {
+         method: 'POST',
+         headers: {'Content-Type':'application/json'},
+         body: JSON.stringify({ module: currentModule, question, fields })
+       });
+       const data = await res.json();
+
+     matching the FastAPI/LangChain backend (src/rag/chain.py,
+     src/models/*.py) from the project.
+     ============================================================ */
+
+  const MODULES = {
+    general: {
+      title: "General Advisory",
+      sub: "Ask a free-form question — answers are grounded in ICAR / TNAU / FAO guidance.",
+      tag: "MODULE 01",
+      placeholder: "Type your question…"
+    },
+    crop: {
+      title: "Crop Recommendation",
+      sub: "Enter soil test values to get the top suitable crops for this field.",
+      tag: "MODULE 02",
+      placeholder: "Optional: add context, e.g. \"irrigated field, red soil\"…"
+    },
+    fertilizer: {
+      title: "Fertilizer Plan",
+      sub: "Enter current soil N-P-K and target crop for a dosage calendar.",
+      tag: "MODULE 03",
+      placeholder: "Optional: mention soil type or irrigation method…"
+    },
+    disease: {
+      title: "Disease Diagnosis",
+      sub: "Upload a leaf photo, or describe the symptoms you're seeing.",
+      tag: "MODULE 04",
+      placeholder: "Describe symptoms, e.g. \"yellow spots with brown rings on tomato leaves\"…"
+    }
+  };
+
+  let currentModule = "general";
+
+  const chatLog        = document.getElementById("chat-log");
+  const composerInput  = document.getElementById("composer-input");
+  const sendBtn        = document.getElementById("send-btn");
+  const panelTitle     = document.getElementById("panel-title");
+  const panelSub       = document.getElementById("panel-sub");
+  const panelTag       = document.getElementById("panel-tag");
+
+  // ---- Tab switching ----
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      currentModule = tab.dataset.module;
+      const cfg = MODULES[currentModule];
+      panelTitle.textContent = cfg.title;
+      panelSub.textContent   = cfg.sub;
+      panelTag.textContent   = cfg.tag;
+      composerInput.placeholder = cfg.placeholder;
+
+      document.querySelectorAll(".field-row").forEach(row => {
+        row.classList.toggle("active", row.dataset.fields === currentModule);
+      });
+    });
+  });
+
+  // ---- Leaf image preview ----
+  const leafUpload   = document.getElementById("leaf-upload");
+  const leafPreview  = document.getElementById("leaf-preview");
+  const leafThumb    = document.getElementById("leaf-thumb");
+  const leafFilename = document.getElementById("leaf-filename");
+
+  leafUpload.addEventListener("change", () => {
+    const file = leafUpload.files[0];
+    if (!file) return;
+    leafThumb.src = URL.createObjectURL(file);
+    leafFilename.textContent = file.name;
+    leafPreview.style.display = "flex";
+  });
+
+  // ---- Autosize textarea ----
+  composerInput.addEventListener("input", () => {
+    composerInput.style.height = "auto";
+    composerInput.style.height = Math.min(composerInput.scrollHeight, 120) + "px";
+  });
+  composerInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      handleSend();
+    }
+  });
+  sendBtn.addEventListener("click", handleSend);
+
+  function timeNow(){
+    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function appendMessage(role, html){
+    const wrap = document.createElement("div");
+    wrap.className = `msg ${role}`;
+    wrap.innerHTML = `
+      <div class="msg-meta">${role === "farmer" ? "YOU" : "ADVISORY"} · ${timeNow()}</div>
+      <div class="bubble">${html}</div>
+    `;
+    chatLog.appendChild(wrap);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return wrap;
+  }
+
+  function appendTyping(){
+    const wrap = document.createElement("div");
+    wrap.className = "msg assistant";
+    wrap.innerHTML = `
+      <div class="msg-meta">ADVISORY · ${timeNow()}</div>
+      <div class="bubble"><span class="typing"><span></span><span></span><span></span></span></div>
+    `;
+    chatLog.appendChild(wrap);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return wrap;
+  }
+
+  function nutrientBarHTML(label, value, max){
+    const pct = Math.max(4, Math.min(100, (value / max) * 100));
+    const cls = pct < 40 ? "low" : pct < 75 ? "ok" : "good";
+    return `
+      <div class="nutrient-row">
+        <span class="nutrient-label">${label}</span>
+        <span class="nutrient-track"><span class="nutrient-fill ${cls}" style="width:${pct}%"></span></span>
+        <span class="nutrient-value">${value}</span>
+      </div>`;
+  }
+
+  function nutrientCardHTML(n, p, k){
+    return `
+      <div class="nutrient-card">
+        <div class="nutrient-card-head"><span>Soil nutrient status</span><span>kg/acre</span></div>
+        ${nutrientBarHTML("N", n, 120)}
+        ${nutrientBarHTML("P", p, 60)}
+        ${nutrientBarHTML("K", k, 60)}
+      </div>`;
+  }
+
+  // ---- Mocked responses — replace with real backend call ----
+  function mockReply(module, question){
+    if (module === "crop"){
+      const n = document.getElementById("crop-n").value || 40;
+      const p = document.getElementById("crop-p").value || 30;
+      const k = document.getElementById("crop-k").value || 35;
+      return `Based on the values entered, the top suitable crops are:
+        <ol><li><strong>Rice</strong> — 78% match</li><li><strong>Maize</strong> — 61% match</li><li><strong>Sugarcane</strong> — 54% match</li></ol>
+        ${nutrientCardHTML(n, p, k)}`;
+    }
+    if (module === "fertilizer"){
+      const crop = document.getElementById("fert-crop").value || "the selected crop";
+      const n = document.getElementById("fert-n").value || 40;
+      const p = document.getElementById("fert-p").value || 15;
+      const k = document.getElementById("fert-k").value || 20;
+      return `Recommended dosage plan for <strong>${crop}</strong>:
+        <ul><li>DAP — 32.6 kg/acre (basal dose, at sowing)</li><li>Urea — 87.4 kg/acre (split: 50% basal, 50% at tillering)</li><li>MOP — 33.3 kg/acre (basal dose)</li></ul>
+        ${nutrientCardHTML(n, p, k)}`;
+    }
+    if (module === "disease"){
+      return `Likely diagnosis: <strong>Early Blight</strong> (<em>Alternaria solani</em>) — 82% confidence.
+        <ul><li>Remove and destroy affected lower leaves</li><li>Apply Mancozeb 75% WP @ 2g/litre, repeat every 7–10 days</li><li>Avoid overhead irrigation; water at the base</li></ul>`;
+    }
+    return `Thanks for your question. In line with TNAU package-of-practices guidance: apply the recommended basal dose at sowing, and split the nitrogen dose across two top-dressings for best uptake. Would you like the exact schedule for your crop?`;
+  }
+
+  function handleSend(){
+    const text = composerInput.value.trim();
+    const hasStructuredInput = currentModule !== "general";
+    if (!text && !hasStructuredInput) return;
+
+    const label = text || `(${MODULES[currentModule].title} request)`;
+    appendMessage("farmer", label);
+    composerInput.value = "";
+    composerInput.style.height = "auto";
+
+    const typingEl = appendTyping();
+
+    setTimeout(() => {
+      typingEl.remove();
+      appendMessage("assistant", mockReply(currentModule, text));
+    }, 900 + Math.random() * 500);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+# LLM / RAG
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-groq>=0.2.0
+langchain-text-splitters>=0.3.0
+langchain-huggingface>=0.1.0
+langchain-chroma>=0.2.0
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
+# PDF loading
+pypdf>=4.0.0
+
+# Structured ML models
+scikit-learn>=1.4.0
+pandas>=2.2.0
+numpy>=1.26.0
+joblib>=1.4.0
+
+# Image model (disease classifier)
+torch>=2.2.0
+torchvision>=0.17.0
+pillow>=10.0.0
+
+# Config / env
+python-dotenv>=1.0.0
+
+# CLI / app
+rich>=13.7.0
